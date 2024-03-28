@@ -5,6 +5,7 @@ pub mod request;
 pub mod response;
 pub mod routes;
 pub mod status;
+pub mod threadpool;
 
 use method::Method;
 use request::Request;
@@ -12,7 +13,7 @@ use response::Response;
 use routes::{Route, Router};
 use std::io::{Read, Result};
 use std::sync::{Arc, Mutex};
-use std::thread::spawn;
+use threadpool::ThreadPool;
 
 pub struct Server {
     name: String,
@@ -32,6 +33,7 @@ impl Server {
             "Server \"{}\" Listening on http://{}:{}",
             self.name, ip, port
         );
+        let thread_pool = ThreadPool::new(4);
         let listener = std::net::TcpListener::bind(format!("{}:{}", ip, port))?;
 
         loop {
@@ -63,7 +65,7 @@ impl Server {
 
             let callback = route.unwrap().callback.unwrap();
 
-            spawn(move || {
+            thread_pool.execute(move || {
                 callback(req, res).unwrap();
             });
         }
