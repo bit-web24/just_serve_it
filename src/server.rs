@@ -1,6 +1,7 @@
 pub mod body;
 pub mod header;
 pub mod method;
+pub mod middleware;
 pub mod path;
 pub mod request;
 pub mod response;
@@ -9,6 +10,7 @@ pub mod status;
 pub mod threadpool;
 
 use method::Method;
+use middleware::Middleware;
 use request::Request;
 use response::Response;
 use routes::{Route, Router};
@@ -18,15 +20,22 @@ use threadpool::ThreadPool;
 
 pub struct Server {
     name: String,
+    middlewares: Vec<Arc<dyn Middleware>>,
     routes: Arc<Mutex<Router>>,
 }
 
 impl Server {
     pub fn new(name: &str) -> Self {
         Self {
+            middlewares: Vec::new(),
             name: name.to_string(),
             routes: Arc::new(Mutex::new(Router::new())),
         }
+    }
+
+    #[allow(unused)]
+    pub fn _use_(&mut self, middleware: impl Middleware + 'static) {
+        self.middlewares.push(Arc::new(middleware));
     }
 
     pub fn listen(&mut self, ip: &str, port: u16, _callback: fn() -> Result<()>) -> Result<()> {
@@ -42,7 +51,7 @@ impl Server {
             let mut buf = [0; 1024];
             let n = socket.read(&mut buf).unwrap();
             let mut request_str = String::from_utf8_lossy(&buf[..n]);
-            let req = Request::parse(&mut request_str);
+            let mut req = Request::parse(&mut request_str);
             let mut res = Response::new(socket);
 
             if req.method.is_none() {
@@ -52,9 +61,14 @@ impl Server {
                 continue;
             }
 
-            let req_path = req.path.as_ref().unwrap();
             let mut routes = self.routes.lock().unwrap();
 
+            // Handle Middlewares
+            for mw in &self.middlewares {
+                mw.handle(&mut routes, &mut req)?;
+            }
+
+            let req_path = req.path.as_ref().unwrap();
             let route = routes.get(&req.method.as_ref().unwrap(), req_path);
 
             fn not_found(req: Request, mut res: Response) -> Result<()> {
@@ -84,6 +98,7 @@ impl Server {
         }
     }
 
+    #[allow(unused)]
     pub fn get(
         &mut self,
         path: &str,
@@ -95,6 +110,7 @@ impl Server {
         Ok(())
     }
 
+    #[allow(unused)]
     pub fn post(
         &mut self,
         path: &str,
@@ -106,6 +122,7 @@ impl Server {
         Ok(())
     }
 
+    #[allow(unused)]
     pub fn put(
         &mut self,
         path: &str,
@@ -117,6 +134,7 @@ impl Server {
         Ok(())
     }
 
+    #[allow(unused)]
     pub fn patch(
         &mut self,
         path: &str,
@@ -128,6 +146,7 @@ impl Server {
         Ok(())
     }
 
+    #[allow(unused)]
     pub fn delete(
         &mut self,
         path: &str,
@@ -139,6 +158,7 @@ impl Server {
         Ok(())
     }
 
+    #[allow(unused)]
     pub fn not_found(&mut self, _callback: fn(Request, Response) -> Result<()>) -> Result<()> {
         let mut routes = self.routes.lock().unwrap();
         routes.not_found = Some(_callback);

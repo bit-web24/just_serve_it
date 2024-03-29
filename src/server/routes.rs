@@ -70,11 +70,6 @@ impl Router {
             Method::Put => self.put.get(path),
             Method::Patch => self.patch.get(path),
             Method::Delete => self.delete.get(path),
-            _ => None,
         }
-    }
-
-    pub fn not_found(&mut self, callback: fn(Request, Response) -> Result<()>) {
-        self.not_found = Some(callback);
     }
 }
