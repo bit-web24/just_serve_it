@@ -28,6 +28,7 @@ pub struct Router {
     pub put: HashMap<String, Route>,
     pub patch: HashMap<String, Route>,
     pub delete: HashMap<String, Route>,
+    pub not_found: Option<fn(Request, Response) -> Result<()>>,
 }
 
 impl Router {
@@ -38,6 +39,7 @@ impl Router {
             put: HashMap::new(),
             patch: HashMap::new(),
             delete: HashMap::new(),
+            not_found: None,
         }
     }
 
@@ -70,5 +72,9 @@ impl Router {
             Method::Delete => self.delete.get(path),
             _ => None,
         }
+    }
+
+    pub fn not_found(&mut self, callback: fn(Request, Response) -> Result<()>) {
+        self.not_found = Some(callback);
     }
 }

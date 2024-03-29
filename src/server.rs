@@ -1,6 +1,7 @@
 pub mod body;
 pub mod header;
 pub mod method;
+pub mod path;
 pub mod request;
 pub mod response;
 pub mod routes;
@@ -56,14 +57,26 @@ impl Server {
 
             let route = routes.get(&req.method.as_ref().unwrap(), req_path);
 
-            if route.is_none() {
+            fn not_found(req: Request, mut res: Response) -> Result<()> {
                 res.status.status_code = 404;
-                res.send(format!("Page {} Not Found!", req_path).as_str())
+                res.send(format!("Page {} Not Found!", req.path.unwrap()).as_str())
                     .unwrap();
-                continue;
+                Ok(())
             }
 
-            let callback = route.unwrap().callback.unwrap();
+            let callback: fn(Request, Response) -> Result<()>;
+
+            if let Some(route) = route {
+                callback = route.callback.unwrap();
+            } else {
+                let default_callback = routes.not_found;
+
+                if default_callback.is_some() {
+                    callback = default_callback.unwrap();
+                } else {
+                    callback = not_found;
+                }
+            }
 
             thread_pool.execute(move || {
                 callback(req, res).unwrap();
@@ -78,6 +91,57 @@ impl Server {
     ) -> Result<()> {
         let mut routes = self.routes.lock().unwrap();
         routes.add(Route::new(path, Method::Get, _callback));
+
+        Ok(())
+    }
+
+    pub fn post(
+        &mut self,
+        path: &str,
+        _callback: fn(Request, Response) -> Result<()>,
+    ) -> Result<()> {
+        let mut routes = self.routes.lock().unwrap();
+        routes.add(Route::new(path, Method::Post, _callback));
+
+        Ok(())
+    }
+
+    pub fn put(
+        &mut self,
+        path: &str,
+        _callback: fn(Request, Response) -> Result<()>,
+    ) -> Result<()> {
+        let mut routes = self.routes.lock().unwrap();
+        routes.add(Route::new(path, Method::Put, _callback));
+
+        Ok(())
+    }
+
+    pub fn patch(
+        &mut self,
+        path: &str,
+        _callback: fn(Request, Response) -> Result<()>,
+    ) -> Result<()> {
+        let mut routes = self.routes.lock().unwrap();
+        routes.add(Route::new(path, Method::Patch, _callback));
+
+        Ok(())
+    }
+
+    pub fn delete(
+        &mut self,
+        path: &str,
+        _callback: fn(Request, Response) -> Result<()>,
+    ) -> Result<()> {
+        let mut routes = self.routes.lock().unwrap();
+        routes.add(Route::new(path, Method::Delete, _callback));
+
+        Ok(())
+    }
+
+    pub fn not_found(&mut self, _callback: fn(Request, Response) -> Result<()>) -> Result<()> {
+        let mut routes = self.routes.lock().unwrap();
+        routes.not_found = Some(_callback);
 
         Ok(())
     }
