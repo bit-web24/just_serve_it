@@ -1,6 +1,6 @@
 # novanet
 
-Async & lightweigh web-server in rust.
+Lightweigh & Multithreaded web-server in rust.
 
 # Usage
 
