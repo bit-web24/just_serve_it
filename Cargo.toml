@@ -1,7 +1,14 @@
 [package]
-name = "novanet"
+name = "just_serve_it"
 version = "1.0.0"
 edition = "2021"
+authors = ["Bittu Kumar <bitweb24@gmail.com>"]
+license = "GPL-3.0"
+readme = "README.md"
+description = "A lightweight and multithreaded backend web-framework for Rust"
+repository = "https://github.com/bit-web24/just_serve_it"
+keywords = ["http", "server", "framework", "web", "just_serve_it"]
+categories = ["web-programming"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
