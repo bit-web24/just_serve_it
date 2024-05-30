@@ -1,23 +1,28 @@
-# Novanet
+# just_serve_it
 
-**Novanet** is a lightweight and multithreaded `web framework` written in Rust. It is designed to handle **HTTP** requests efficiently, providing a robust foundation for building web applications and APIs. Novanet focuses on simplicity and performance, offering essential features for routing, middleware, and static file serving.
+**just_serve_it** is a lightweight and multithreaded `web framework` written in Rust. It is designed to handle **HTTP** requests efficiently, providing a robust foundation for building web applications and APIs. just_serve_it focuses on simplicity and performance, offering essential features for routing, middleware, and static file serving.
 
 ## Features
 
-- **HTTP Request Handling:** Novanet processes HTTP requests, making it suitable for applications that do not require HTTPS.
+- **HTTP Request Handling:** just_serve_it processes HTTP requests, making it suitable for applications that do not require HTTPS.
 - **Multithreaded:** Efficiently handles multiple requests simultaneously using Rust's powerful concurrency features.
 - **Routing:** Define routes for different HTTP methods (GET, POST, etc.) and handle requests based on URL patterns.
 - **Middleware Support:** Use middleware to process requests and responses, enabling functionalities like logging, authentication, and body parsing.
 - **Static File Serving:** Serve static files from specified directories, such as HTML, CSS, and JavaScript files.
 - **Error Handling:** Customizable error handling to provide user-friendly responses for different error conditions.
 
+## Installation
+```sh
+cargo add just_serve_it
+```
+
 ## Usage
 
-Below is an example demonstrating how to use the Novanet framework.
+Below is an example demonstrating how to use the just_serve_it framework.
 
 ```rust
-mod server;
-use server::{middleware, path::Path, request::Request, response::Response, Server};
+use just_serve_it;
+use just_serve_it::{middleware, path::Path, request::Request, response::Response, Server};
 use std::io::Result;
 use std::thread::sleep;
 use std::time::Duration;
@@ -81,27 +86,6 @@ fn root_post_handler(req: Request, mut res: Response) -> Result<()> {
     Ok(())
 }
 ```
-
-## How to Run
-
-1. Ensure you have Rust installed. If not, you can download it from [rust-lang.org](https://www.rust-lang.org/).
-2. Clone the repository.
-3. Navigate to the project directory.
-4. Build and run the server using Cargo:
-    ```sh
-    cargo run
-    ```
-5. The server will start listening on `127.0.0.1:8080`.
-
-## Routes
-
-- `GET /` - Serves the home page.
-- `GET /about` - Serves the about page (with a 4-second delay).
-- `POST /` - Handles POST requests to the root, displaying raw, JSON, and URL-encoded body data.
-
-## Error Handling
-
-- A custom 404 Not Found page is served if the requested resource is not found.
 
 ## Contributing
 
