@@ -1,5 +1,5 @@
 use super::Middleware;
-use crate::server::{request::Request, routes::Router};
+use crate::{request::Request, routes::Router};
 use serde_urlencoded;
 use std::io::Result;
 

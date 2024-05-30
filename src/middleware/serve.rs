@@ -1,7 +1,7 @@
-use crate::server::method;
-use crate::server::request::Request;
-use crate::server::response::Response;
-use crate::server::routes::{Route, Router};
+use crate::method;
+use crate::request::Request;
+use crate::response::Response;
+use crate::routes::{Route, Router};
 
 use super::Middleware;
 use std::io::Result;
